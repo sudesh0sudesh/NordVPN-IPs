@@ -24,7 +24,7 @@ def fetch_asn(subnet):
     try:
         response = requests.get(f"{IP_GUIDE_URL}{subnet}")
         if response.status_code == 200:
-            data = response.json().get('autonomous_system', {})
+            data = response.json().get('network', {}).get('autonomous_system', {})
         elif response.status_code == 404:
             ip = subnet.split('/')[0]
             response = requests.get(f"{IP_GUIDE_URL}{ip}")
@@ -63,10 +63,11 @@ def main():
 
     output = []
     for subnet in subnets:
-        asn, asn_org, country, first_seen, last_seen = fetch_asn(subnet+"/32")
+        asn, asn_org, country, first_seen, last_seen = fetch_asn(subnet)
         if asn:
             output.append([subnet, asn, asn_org, country, first_seen, last_seen])
-
+            
+    output = list(set(output))
     old_output = read_csv(OUTPUT_FILE)
 
     if not old_output:
