@@ -1,5 +1,15 @@
 
-# NordVPN IPs Collector
+# NordVPN-IPs
 
-This repository contains a script that collects NordVPN IPs and stores them in a CSV file. The script is designed to update the CSV file every hour.
+A comprehensive collection of NordVPN server IP addresses.
+
+## Overview
+
+This repository maintains an up-to-date list of NordVPN server IP addresses, making it easier for system administrators and users to configure their networks and security tools.
+
+## Features
+
+- Complete list of NordVPN server IP addresses
+- Regular updates to maintain accuracy
+- Easy-to-parse format for automation
 
