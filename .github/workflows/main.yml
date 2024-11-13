@@ -26,12 +26,10 @@ jobs:
           pip install dnspython
           pip install requests
          
-      - name: Gather PIA subnets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gather Nord VPN Hosts
         run: python nordvpn.py
      
-      - name: Clean up zmap output(P)
+      - name: Clean up IPs
         run: python nord_vpn_cleanup.py
 
 
@@ -42,8 +40,8 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add pia_ips.csv new_pia_ips.csv 
-          git diff-index --quiet HEAD || git commit -m "[AUTO] update IoCs $(date '+%Y-%m-%d %H:%M:%S')"
+          git add nordvpn_ips.csv new_nordvpn_ips.csv 
+          git diff-index --quiet HEAD || git commit -m "[AUTO] update of IPs $(date '+%Y-%m-%d %H:%M:%S')"
           
       - name: Push changes
         id: push
