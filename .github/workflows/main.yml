@@ -1,0 +1,53 @@
+name: NordVPN IP Updater
+
+on:
+  schedule:
+    - cron: '0 */1 * * *'  # Runs every 2 hours
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  update-iocs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install dnspython
+          pip install requests
+         
+      - name: Gather PIA subnets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python nordvpn.py
+     
+      - name: Clean up zmap output(P)
+        run: python nord_vpn_cleanup.py
+
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "sudesh@sudesh.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Commit changes
+        run: |
+          git add pia_ips.csv new_pia_ips.csv 
+          git diff-index --quiet HEAD || git commit -m "[AUTO] update IoCs $(date '+%Y-%m-%d %H:%M:%S')"
+          
+      - name: Push changes
+        id: push
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
