@@ -22,7 +22,7 @@ def read_csv(file_path) -> list:
 
 def fetch_asn(subnet):
     try:
-        response = requests.get(f"{IP_GUIDE_URL}{subnet.trim()}")
+        response = requests.get(f"{IP_GUIDE_URL}{subnet.strip()}")
         if response.status_code == 200:
             data = response.json().get('network', {}).get('autonomous_system', {})
         elif response.status_code == 404:
