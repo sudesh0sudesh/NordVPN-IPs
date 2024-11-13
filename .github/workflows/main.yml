@@ -32,6 +32,9 @@ jobs:
       - name: Clean up IPs
         run: python nord_vpn_cleanup.py
 
+      - name: Subnet Generation
+        run: python pia_subnet_csv.py
+
 
       - name: Configure Git
         run: |
@@ -40,7 +43,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add nordvpn_ips.csv new_nordvpn_ips.csv 
+          git add nordvpn_ips.csv new_nordvpn_ips.csv nord_subnet.csv
           git diff-index --quiet HEAD || git commit -m "[AUTO] update of IPs $(date '+%Y-%m-%d %H:%M:%S')"
           
       - name: Push changes
