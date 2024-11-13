@@ -6,7 +6,7 @@ import logging
 
 INPUT_FILE = 'nordvpn_servers.txt'
 IP_GUIDE_URL = "https://ip.guide/"
-OUTPUT_FILE = 'express_subnet.csv'
+OUTPUT_FILE = 'nord_subnet.csv'
 
 def read_txt(file_path) -> list:
     if os.path.exists(file_path):
