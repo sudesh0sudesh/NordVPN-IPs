@@ -20,11 +20,20 @@ def read_csv(file_path) -> list:
             return list(csv.reader(f))
     return []
 
+def subnets_from_ips(ips):
+    subnets = set()
+    for ip in ips:
+        ip_split = ip.split('.')
+        subnet = f"{'.'.join(ip_split[:3])}.0/24"
+        subnets.add(subnet)
+    return subnets
+
 def fetch_asn(subnet):
     try:
         response = requests.get(f"{IP_GUIDE_URL}{subnet.strip()}")
         if response.status_code == 200:
-            data = response.json().get('network', {}).get('autonomous_system', {})
+            data = response.json().get('autonomous_system', {})
+            subnet = response.json().get('cidr', None)
         elif response.status_code == 404:
             ip = subnet.split('/')[0]
             response = requests.get(f"{IP_GUIDE_URL}{ip}")
@@ -37,16 +46,17 @@ def fetch_asn(subnet):
         country = data.get('country', None)
         first_seen = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         last_seen = first_seen
+        
 
         if not asn:
             raise ValueError("Invalid response format")
 
-        logging.info(f"Subnet: {subnet}, country: {country}")
+        print(f"Subnet: {subnet}, country: {country}")
     except Exception as e:
         print(f"Error fetching ASN {e} {subnet}")
-        return None, None, None, None, None
+        return None, None, None, None, None, None
 
-    return asn, asn_org, country, first_seen, last_seen
+    return subnet, asn, asn_org, country, first_seen, last_seen
 
 def write_csv(file_path, data, header=None):
     with open(file_path, 'w', newline='') as f:
@@ -57,17 +67,21 @@ def write_csv(file_path, data, header=None):
 
 def main():
     subnets = read_txt(INPUT_FILE)
+    
     if not subnets:
         print(f"The file '{INPUT_FILE}' does not exist.")
         return
-
+    subnets = subnets_from_ips(subnets)
     output = []
     for subnet in subnets:
-        asn, asn_org, country, first_seen, last_seen = fetch_asn(subnet)
+        sub, asn, asn_org, country, first_seen, last_seen = fetch_asn(subnet)
         if asn:
-            output.append([subnet, asn, asn_org, country, first_seen, last_seen])
+            output.append([sub, asn, asn_org, country, first_seen, last_seen])
             
-    output = list(set(output))
+    # deduplication
+    
+    output = [list(x) for x in set(tuple(x) for x in output)]
+    
     old_output = read_csv(OUTPUT_FILE)
 
     if not old_output:
